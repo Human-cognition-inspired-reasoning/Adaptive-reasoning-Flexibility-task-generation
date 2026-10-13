@@ -1,8 +1,8 @@
 # Risk-Controlled KV-Cache Eviction
 
-**Risk-Controlled KV-Cache Eviction: From Memory Budgets to Risk Targets**
+Code for [Risk-Controlled KV-Cache Eviction: From Memory Budgets to Risk Targets](https://arxiv.org/abs/2609.27981).
 
-This minimal release implements calibration of an ordered policy sequence from a declared risk target. It provides the statistical core, a synthetic calibration example, and a real GPU generation example for DefensiveKV, Layer-DefensiveKV, SnapKV, and AdaKV. Full benchmark reproduction scripts and experimental artifacts are planned for a later release.
+This repository provides risk calibration utilities and examples for DefensiveKV, Layer-DefensiveKV, SnapKV, and AdaKV.
 
 ## CPU calibration example
 
