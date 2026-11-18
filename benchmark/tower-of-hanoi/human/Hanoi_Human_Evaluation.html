@@ -1,0 +1,1555 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>하노이탑 과제</title><style>
+:root {
+  --ink:#21364a;
+  --muted:#738394;
+  --line:#e0e7ed;
+  --navy:#244f6d;
+  --teal:#42a8a2;
+  --gold:#edc271;
+  --blue:#5d8fbe;
+  --bg:#f5f7fa;
+}
+
+* {
+  box-sizing:border-box;
+}
+
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Apple SD Gothic Neo",sans-serif;
+  font-size:15px;
+}
+
+button,input {
+  font:inherit;
+}
+
+button,.file-button {
+  cursor:pointer;
+}
+
+button {
+  border:0;
+  border-radius:8px;
+  padding:12px 17px;
+  line-height:1.35;
+  background:white;
+  color:var(--ink);
+  transition:background .15s;
+}
+
+button:disabled {
+  opacity:.45;
+  cursor:default;
+}
+
+button:focus-visible,a:focus-visible,input:focus-visible,.file-button:focus-within {
+  outline:3px solid #62a9ce;
+  outline-offset:3px;
+}
+
+.primary {
+  background:var(--navy);
+  color:white;
+  font-weight:650;
+  min-height:45px;
+}
+
+.primary:hover:not(:disabled) {
+  background:#173f5c;
+}
+
+.secondary {
+  background:#e9f0f6;
+  color:var(--navy);
+  font-weight:600;
+}
+
+.quiet,.file-button {
+  background:transparent;
+  color:#627789;
+  font-size:13px;
+}
+
+.quiet:hover:not(:disabled),.file-button:hover {
+  background:#eaf0f5;
+}
+
+.small {
+  padding:9px 10px;
+  font-size:12px;
+}
+
+.wide {
+  width:100%;
+  margin-top:12px;
+}
+
+.topbar {
+  height:80px;
+  border-bottom:1px solid var(--line);
+  background:white;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 42px;
+  gap:20px;
+}
+
+.brand {
+  text-decoration:none;
+  color:var(--ink);
+  font-size:20px;
+  font-weight:750;
+  white-space:nowrap;
+}
+
+.brand-mark {
+  color:var(--teal);
+  margin-right:7px;
+  font-size:26px;
+}
+
+.topbar nav {
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.file-button {
+  border-radius:8px;
+  padding:12px;
+  display:inline-flex;
+  align-items:center;
+}
+
+.file-button input {
+  width:1px;
+  height:1px;
+  position:absolute;
+  clip-path:inset(50%);
+}
+
+#save-status {
+  font-size:12px;
+  color:var(--muted);
+  padding-right:12px;
+}
+
+#save-status[data-warning="true"] {
+  display:block;
+  position:fixed;
+  left:50%;
+  bottom:16px;
+  transform:translateX(-50%);
+  z-index:1000;
+  width:max-content;
+  max-width:calc(100vw - 32px);
+  padding:12px 18px;
+  border:1px solid #dfb252;
+  border-radius:10px;
+  background:#fff3cf;
+  color:#593b00;
+  box-shadow:0 3px 14px #0002;
+  white-space:normal;
+  text-align:center;
+}
+
+main {
+  max-width:1420px;
+  margin:auto;
+  padding:40px;
+}
+
+.eyebrow {
+  font-size:11px;
+  letter-spacing:.13em;
+  font-weight:750;
+  color:#8597a7;
+  margin:0 0 13px;
+}
+
+h1,h2,p {
+  margin-top:0;
+}
+
+h1 {
+  font-size:36px;
+  letter-spacing:-1.2px;
+  line-height:1.45;
+}
+
+h2 {
+  font-size:18px;
+  letter-spacing:-.4px;
+}
+
+.lead {
+  font-size:17px;
+  color:var(--muted);
+  line-height:1.8;
+}
+
+.subtle {
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.7;
+}
+
+.panel {
+  background:white;
+  border:1px solid var(--line);
+  border-radius:15px;
+}
+
+.welcome {
+  display:grid;
+  grid-template-columns:1.05fr 1fr;
+  gap:70px;
+  padding-top:22px;
+}
+
+.intro {
+  padding-top:25px;
+}
+
+.start-panel {
+  padding:30px;
+}
+
+.start-panel h2 {
+  font-size:24px;
+}
+
+.instructions {
+  font-size:13px;
+  line-height:1.8;
+  color:#586c7e;
+}
+
+.instructions p {
+  margin-bottom:13px;
+}
+
+.start-panel form {
+  border-top:1px solid var(--line);
+  padding-top:22px;
+  margin-top:22px;
+}
+
+.start-panel label {
+  display:block;
+  font-size:13px;
+  font-weight:650;
+  margin-bottom:8px;
+}
+
+input[type=text],input:not([type]) {
+  border:1px solid #ced9e2;
+  border-radius:8px;
+  background:#fafcfd;
+  padding:12px;
+  width:100%;
+  color:var(--ink);
+}
+
+.start-panel .primary {
+  width:100%;
+}
+
+.task-title {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.task-title h1 {
+  font-size:29px;
+  margin:0;
+}
+
+.task-title h1 span {
+  color:#91a0ad;
+  font-size:19px;
+  font-weight:400;
+}
+
+.participant-label {
+  color:var(--muted);
+  font-size:12px;
+}
+
+.workspace {
+  display:grid;
+  grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);
+  gap:24px;
+  align-items:start;
+}
+
+.play-area {
+  display:grid;
+  gap:20px;
+}
+
+.board-panel {
+  padding:25px 25px 0;
+}
+
+.panel-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+
+.panel-head h2 {
+  margin:0;
+}
+
+.panel-head p {
+  font-size:12px;
+  color:var(--muted);
+  margin:8px 0 0;
+  line-height:1.6;
+}
+
+.board {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
+  height:245px;
+  padding:14px 0 0;
+}
+
+.peg {
+  position:relative;
+  border:1.5px solid transparent;
+  background:transparent;
+  border-radius:12px;
+  padding:0;
+  min-width:0;
+  color:var(--muted);
+}
+
+.peg:not(:disabled):hover {
+  background:#eef5f9;
+}
+
+.peg:disabled {
+  opacity:1;
+}
+
+.peg.selected {
+  background:#eaf4f9;
+  border-color:#73abc7;
+}
+
+.rod {
+  position:absolute;
+  top:25px;
+  bottom:44px;
+  background:#d7e1e8;
+  width:7px;
+  left:calc(50% - 3.5px);
+  border-radius:5px;
+}
+
+.base {
+  position:absolute;
+  bottom:35px;
+  left:5%;
+  width:90%;
+  height:9px;
+  background:#cbd7e1;
+  border-radius:6px;
+}
+
+.peg-letter {
+  position:absolute;
+  bottom:4px;
+  left:0;
+  right:0;
+  font-size:14px;
+  font-weight:700;
+  text-align:center;
+}
+
+.stack {
+  position:absolute;
+  bottom:44px;
+  left:50%;
+  transform:translateX(-50%);
+  width:90%;
+  display:flex;
+  flex-direction:column-reverse;
+  align-items:center;
+  gap:3px;
+}
+
+.disk {
+  height:33px;
+  border-radius:6px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:14px;
+  font-weight:750;
+  color:white;
+  box-shadow:0 2px 2px #2038480c;
+}
+
+.disk-1 {
+  width:43%;
+  background:var(--teal);
+}
+
+.disk-2 {
+  width:65%;
+  background:var(--gold);
+  color:#5f461e;
+}
+
+.disk-3 {
+  width:88%;
+  background:var(--blue);
+}
+
+.intro-board {
+  height:220px;
+  background:#edf2f6;
+  border-radius:14px;
+  padding:15px;
+  margin-top:30px;
+}
+
+.board-footer {
+  border-top:1px solid #eaf0f5;
+  padding:16px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
+
+.legend {
+  display:flex;
+  align-items:center;
+  gap:5px;
+  white-space:nowrap;
+  font-size:10px;
+}
+
+.legend i {
+  font-style:normal;
+  width:19px;
+  height:19px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  color:white;
+  font-weight:700;
+}
+
+.d1 {
+  background:var(--teal);
+}
+
+.d2 {
+  background:var(--gold);
+}
+
+.d3 {
+  background:var(--blue);
+}
+
+.plan-panel {
+  padding:23px 25px 0;
+}
+
+.count {
+  display:inline-block;
+  font-size:11px;
+  color:#7c91a2;
+  background:#edf2f6;
+  border-radius:6px;
+  padding:4px 7px;
+  margin-left:7px;
+  vertical-align:middle;
+  font-weight:500;
+}
+
+.move-list {
+  list-style:none;
+  padding:0;
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin:22px 0;
+  max-height:240px;
+  overflow:auto;
+}
+
+.move-chip {
+  border:1px solid var(--line);
+  background:#fbfcfe;
+  padding:8px 9px;
+  border-radius:6px;
+  display:flex;
+  gap:7px;
+  align-items:center;
+  white-space:nowrap;
+  font-size:12px;
+}
+
+.move-chip small {
+  font-size:9px;
+  color:#98a7b5;
+}
+
+.move-chip .disk-label {
+  font-size:10px;
+  background:#eaf0f4;
+  color:#647e91;
+  border-radius:4px;
+  padding:3px 5px;
+}
+
+.move-chip strong {
+  font-size:12px;
+  letter-spacing:.02em;
+}
+
+.empty-plan {
+  text-align:center;
+  color:#95a4b1;
+  font-size:13px;
+  padding:26px 0;
+  line-height:1.8;
+}
+
+.submission-bar,.feedback-panel {
+  border-top:1px solid #eaf0f5;
+  padding:18px 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+
+.submission-bar p {
+  margin:0;
+  font-size:12px;
+  color:var(--muted);
+}
+
+.feedback-panel strong {
+  font-size:21px;
+  line-height:1.5;
+  color:#315d75;
+}
+
+.feedback-panel .correct {
+  color:#26836a;
+}
+
+.feedback-panel .incorrect {
+  color:#a44f3b;
+}
+
+.feedback-panel .violation {
+  color:#946322;
+}
+
+.history-panel {
+  overflow:hidden;
+}
+
+.history-head {
+  padding:25px 22px 18px;
+}
+
+.history-head h2 {
+  margin-bottom:10px;
+}
+
+.history-head p {
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.8;
+  margin:0;
+}
+
+#history {
+  padding:0 15px 15px;
+  max-height:700px;
+  overflow:auto;
+}
+
+.history-empty {
+  font-size:13px;
+  text-align:center;
+  color:#9aabb8;
+  padding:30px 0;
+}
+
+.history-item {
+  border:1px solid var(--line);
+  border-radius:9px;
+  margin-bottom:9px;
+  overflow:hidden;
+}
+
+.history-item summary {
+  padding:14px 12px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-size:12px;
+  cursor:pointer;
+}
+
+.history-item summary::after {
+  content:'⌄';
+  margin-left:auto;
+}
+
+.history-item[open] summary::after {
+  content:'⌃';
+}
+
+.badge {
+  padding:4px 7px;
+  border-radius:5px;
+  font-size:11px;
+  background:#edf3f7;
+  color:#456c86;
+  line-height:1.5;
+}
+
+.badge.correct {
+  background:#e9f6ef;
+  color:#287f65;
+}
+
+.badge.incorrect {
+  background:#fff0e9;
+  color:#a2553c;
+}
+
+.badge.violation {
+  background:#fff4de;
+  color:#936b28;
+}
+
+.history-detail {
+  border-top:1px solid var(--line);
+  padding:14px;
+}
+
+.history-detail p {
+  font-size:11px;
+  color:var(--muted);
+  margin:0 0 5px;
+}
+
+.history-detail .board {
+  height:135px;
+  background:#f8fafc;
+  border-radius:8px;
+  padding:8px 0 0;
+}
+
+.history-detail .rod {
+  top:18px;
+  bottom:31px;
+  width:5px;
+  left:calc(50% - 2.5px);
+}
+
+.history-detail .base {
+  bottom:25px;
+  height:6px;
+}
+
+.history-detail .stack {
+  bottom:31px;
+  gap:2px;
+}
+
+.history-detail .disk {
+  height:21px;
+  font-size:11px;
+  border-radius:4px;
+}
+
+.history-detail .peg-letter {
+  font-size:11px;
+  bottom:3px;
+}
+
+.history-detail .move-list {
+  margin:12px 0;
+  gap:5px;
+}
+
+.history-detail .move-chip {
+  padding:6px;
+}
+
+.history-detail button {
+  width:100%;
+  font-size:12px;
+  padding:9px;
+}
+
+.complete {
+  max-width:620px;
+  margin:60px auto;
+  padding:50px 35px;
+  text-align:center;
+}
+
+.complete-mark {
+  display:grid;
+  place-items:center;
+  background:#e7f5ee;
+  color:#27856d;
+  width:64px;
+  height:64px;
+  margin:0 auto 24px;
+  border-radius:50%;
+  font-size:27px;
+}
+
+.complete h1 {
+  font-size:30px;
+}
+
+.complete>p:not(.eyebrow) {
+  color:var(--muted);
+  line-height:1.9;
+}
+
+.complete .primary {
+  margin-top:15px;
+}
+
+.error {
+  padding:14px 18px;
+  border:1px solid #e6c4a5;
+  background:#fff4e8;
+  color:#86572c;
+  border-radius:9px;
+  font-size:13px;
+  line-height:1.6;
+}
+
+dialog {
+  border:1px solid var(--line);
+  padding:0;
+  border-radius:16px;
+  max-width:610px;
+  width:calc(100% - 30px);
+  color:var(--ink);
+  box-shadow:0 25px 80px #16334940;
+}
+
+dialog::backdrop {
+  background:#233c5266;
+}
+
+.dialog-inner {
+  padding:30px;
+}
+
+.dialog-inner>.primary {
+  display:block;
+  margin:25px 0 0 auto;
+}
+
+[hidden] {
+  display:none!important;
+}
+
+@media(max-width:1000px) {
+  main {
+    padding:30px 24px;
+  }
+  .topbar {
+    padding:0 24px;
+  }
+  .welcome {
+    gap:30px;
+  }
+  .workspace {
+    grid-template-columns:minmax(0,1.3fr) minmax(290px,1fr);
+  }
+  .board-footer {
+    flex-wrap:wrap;
+  }
+  h1 {
+    font-size:31px;
+  }
+  #save-status {
+    display:none;
+  }
+  .panel-head {
+    flex-wrap:wrap;
+  }
+  .board-panel,.plan-panel {
+    padding-left:18px;
+    padding-right:18px;
+  }
+}
+
+@media(max-width:760px) {
+  main {
+    padding:25px 16px;
+  }
+  .topbar {
+    height:68px;
+    padding:0 16px;
+  }
+  .brand {
+    font-size:17px;
+  }
+  .topbar nav {
+    gap:0;
+  }
+  .topbar nav button,.file-button {
+    padding:10px 7px;
+    font-size:11px;
+  }
+  .welcome,.workspace {
+    grid-template-columns:1fr;
+    gap:20px;
+  }
+  .welcome {
+    padding-top:0;
+  }
+  .intro {
+    padding-top:8px;
+  }
+  .intro h1 {
+    font-size:30px;
+  }
+  .intro-board {
+    height:180px;
+    margin-top:15px;
+  }
+  .start-panel {
+    padding:24px;
+  }
+  .board {
+    height:220px;
+  }
+  .task-title h1 {
+    font-size:25px;
+  }
+  .task-title h1 span {
+    font-size:16px;
+  }
+  .board-footer {
+    font-size:11px;
+  }
+  .submission-bar {
+    flex-wrap:wrap;
+  }
+  .feedback-panel strong {
+    font-size:19px;
+  }
+  .history-detail .board {
+    height:135px;
+  }
+  .complete {
+    padding:36px 22px;
+    margin-top:25px;
+  }
+  .complete h1 {
+    font-size:27px;
+  }
+  .move-chip {
+    font-size:11px;
+  }
+  .plan-panel .panel-head>div {
+    margin-left:auto;
+  }
+}
+
+@media(prefers-reduced-motion:reduce) {
+  * {
+    transition:none!important;
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="topbar"><a class="brand" href="#"><span class="brand-mark" aria-hidden="true">▰</span> 하노이탑 과제</a><nav><span id="save-status" role="status"></span><button id="export" class="quiet" hidden>진행 저장 · JSON</button><label class="file-button">불러오기<input id="import" type="file" accept="application/json,.json"></label><button id="help-button" class="quiet">도움말</button></nav></header>
+<main>
+<noscript>이 과제는 JavaScript를 켠 브라우저에서 열어 주세요.</noscript>
+<p id="error" class="error" role="alert" hidden></p>
+<section id="welcome" class="welcome">
+<div class="intro"><p class="eyebrow">TOWER OF HANOI</p><h1>원반을 옮겨<br>하노이탑 과제를 풀어 주세요.</h1><p class="lead">기둥을 선택해 이동 계획을 만들고,<br>전체 계획을 제출한 뒤 피드백을 확인합니다.</p><div id="intro-board" class="board intro-board" aria-hidden="true"></div><p class="subtle">원반 1이 가장 작고, 원반 3이 가장 큽니다.</p></div>
+<div class="start-panel panel"><p class="eyebrow">참여 시작</p><h2>시작하기 전에</h2><div id="welcome-instructions" class="instructions"></div><form id="start-form"><label for="participant">참여 코드</label><input id="participant" autocomplete="off" maxlength="40" pattern="[A-Za-z0-9_-]+" placeholder="예: H001" required><p class="subtle">안내받은 코드를 입력하세요. 이름은 입력하지 않습니다.</p><button class="primary" id="start" type="submit">과제 시작</button></form><button id="resume" class="secondary wide" hidden>저장된 진행 이어하기</button></div>
+</section>
+<section id="task" hidden>
+<div class="task-title"><div><p class="eyebrow">이동 계획 작성</p><h1 id="problem-title"></h1></div><span class="participant-label" id="participant-label"></span></div>
+<div class="workspace"><div class="play-area">
+<section class="panel board-panel"><div class="panel-head"><div><h2>현재 배치</h2><p>출발 기둥을 누른 뒤 도착 기둥을 선택하세요.</p></div><button id="show-initial" class="quiet small">초기 배치 보기</button></div><div id="board" class="board"></div><div class="board-footer"><span id="move-hint" role="status">출발 기둥을 선택하세요.</span><span class="legend"><i class="d1">1</i><i class="d2">2</i><i class="d3">3</i> 작은 원반 → 큰 원반</span></div></section>
+<section class="panel plan-panel"><div class="panel-head"><h2>이동 계획 <span id="move-count" class="count">0 / 30</span></h2><div><button id="undo" class="quiet small">한 단계 취소</button><button id="reset" class="quiet small">처음부터</button></div></div><ol id="moves" class="move-list"></ol><p id="empty-plan" class="empty-plan">기둥을 선택하면 이동이 여기에 추가됩니다.</p><div id="submission-bar" class="submission-bar"><p>1~30회 이동으로 전체 계획을 작성하세요.</p><button id="submit" class="primary">계획 제출</button></div><div id="feedback-panel" class="feedback-panel" hidden><strong id="feedback" role="status"></strong><button id="continue" class="primary">계속하기</button></div></section>
+</div><aside class="panel history-panel"><div class="history-head"><h2>이전 제출 <span id="history-count" class="count">0</span></h2><p>현재 문제에서 제출한 계획과 피드백입니다.<br>초기 배치와 이동 순서를 다시 볼 수 있습니다.</p></div><div id="history"></div></aside></div>
+</section>
+<section id="complete" class="complete panel" hidden><span class="complete-mark" aria-hidden="true">✓</span><p class="eyebrow">과제 완료</p><h1>참여해 주셔서 감사합니다.</h1><p>평가가 끝났습니다.<br>아래 버튼으로 결과 JSON을 저장해 주세요.</p><button id="export-complete" class="primary">결과 저장 · JSON</button></section>
+</main>
+<dialog id="help"><div class="dialog-inner"><h2>과제 안내</h2><div id="help-instructions" class="instructions"></div><button id="close-help" class="primary">확인</button></div></dialog>
+<dialog id="initial-dialog"><div class="dialog-inner"><h2>이번 제출의 초기 배치</h2><div id="initial-board" class="board"></div><button id="close-initial" class="primary">닫기</button></div></dialog>
+<script>
+window.HANOI_BUNDLE={"format":"hanoi_human_standalone_v1","dataset":{"schema_version":1,"dataset_version":7,"pegs":["A","B","C","D"],"disk_count":3,"max_moves":30,"dataset_id":"hanoi_human_10_v2","dataset_revision":2,"seed":20261029,"problems":[{"id":"P017","rule_type":"peg","rounds":[{"name":"R1","initial_positions":["B","B","D"],"initial_family":"pair12","goal_peg":"D","rule":{"kind":"peg","source":"B","destination":"C"},"validation":{"shortest_plan":["BA","BD","AD"],"min_moves":3,"baseline_min_moves":3,"restriction_witness":["BC","BD","CD"],"transition_witness":null}},{"name":"R2","initial_positions":["D","C","D"],"initial_family":"pair13","goal_peg":"C","rule":{"kind":"peg","source":"C","destination":"A"},"validation":{"shortest_plan":["DA","CB","DC","BC","AC"],"min_moves":5,"baseline_min_moves":5,"restriction_witness":["DB","CA","DC","AC","BC"],"transition_witness":["DB","CA","DC","AC","BD","DC"]}},{"name":"R3","initial_positions":["D","C","C"],"initial_family":"pair23","goal_peg":"A","rule":{"kind":"peg","source":"C","destination":"B"},"validation":{"shortest_plan":["DB","CD","CA","DA","BA"],"min_moves":5,"baseline_min_moves":4,"restriction_witness":["CB","CA","BA","DA"],"transition_witness":["CB","DB","CD","DA","BD","BA","DA"]}},{"name":"R4","initial_positions":["B","A","C"],"initial_family":"separated","goal_peg":"B","rule":{"kind":"peg","source":"B","destination":"D"},"validation":{"shortest_plan":["CD","BC","DB","AB","CB"],"min_moves":5,"baseline_min_moves":4,"restriction_witness":["BD","CB","AB","DB"],"transition_witness":["CD","BD","DC","DB","CD","AB","DB"]}},{"name":"R5","initial_positions":["C","C","C"],"initial_family":"stacked","goal_peg":"D","rule":{"kind":"peg","source":"A","destination":"D"},"validation":{"shortest_plan":["CA","CB","CD","AC","BD","CD"],"min_moves":6,"baseline_min_moves":5,"restriction_witness":["CA","CB","CD","BD","AD"],"transition_witness":["CA","CB","CD","BC","CD","AD"]}}]},{"id":"P035","rule_type":"peg","rounds":[{"name":"R1","initial_positions":["A","C","B"],"initial_family":"separated","goal_peg":"C","rule":{"kind":"peg","source":"C","destination":"D"},"validation":{"shortest_plan":["AD","CA","BC","AC","DC"],"min_moves":5,"baseline_min_moves":4,"restriction_witness":["CD","BC","DC","AC"],"transition_witness":null}},{"name":"R2","initial_positions":["B","B","B"],"initial_family":"stacked","goal_peg":"A","rule":{"kind":"peg","source":"B","destination":"D"},"validation":{"shortest_plan":["BA","AD","BC","BA","CA","DA"],"min_moves":6,"baseline_min_moves":5,"restriction_witness":["BC","BD","BA","DA","CA"],"transition_witness":["BC","BD","BA","DA","CA"]}},{"name":"R3","initial_positions":["C","C","A"],"initial_family":"pair12","goal_peg":"D","rule":{"kind":"peg","source":"C","destination":"B"},"validation":{"shortest_plan":["AD","CA","CD","AD"],"min_moves":4,"baseline_min_moves":4,"restriction_witness":["AD","CB","CD","BD"],"transition_witness":["AD","CB","BA","CD","AD"]}},{"name":"R4","initial_positions":["D","B","D"],"initial_family":"pair13","goal_peg":"B","rule":{"kind":"peg","source":"D","destination":"A"},"validation":{"shortest_plan":["BA","DC","DB","AB","CB"],"min_moves":5,"baseline_min_moves":5,"restriction_witness":["BC","DA","DB","CB","AB"],"transition_witness":["BA","DA","DB","AD","AB","DB"]}},{"name":"R5","initial_positions":["D","A","A"],"initial_family":"pair23","goal_peg":"D","rule":{"kind":"peg","source":"D","destination":"C"},"validation":{"shortest_plan":["AC","DB","AD","CD","BD"],"min_moves":5,"baseline_min_moves":5,"restriction_witness":["AB","DC","AD","BD","CD"],"transition_witness":["AB","DC","AD","BD","CD"]}}]},{"id":"P041","rule_type":"peg","rounds":[{"name":"R1","initial_positions":["B","B","B"],"initial_family":"stacked","goal_peg":"A","rule":{"kind":"peg","source":"C","destination":"A"},"validation":{"shortest_plan":["BC","BD","BA","CB","DA","BA"],"min_moves":6,"baseline_min_moves":5,"restriction_witness":["BC","BD","BA","DA","CA"],"transition_witness":null}},{"name":"R2","initial_positions":["D","D","B"],"initial_family":"pair12","goal_peg":"D","rule":{"kind":"peg","source":"D","destination":"C"},"validation":{"shortest_plan":["BC","DA","DB","CD","BD","AD"],"min_moves":6,"baseline_min_moves":5,"restriction_witness":["DA","DC","BD","CD","AD"],"transition_witness":["DA","DC","BD","CD","AD"]}},{"name":"R3","initial_positions":["A","C","A"],"initial_family":"pair13","goal_peg":"C","rule":{"kind":"peg","source":"A","destination":"B"},"validation":{"shortest_plan":["AD","CB","AC","BC","DC"],"min_moves":5,"baseline_min_moves":5,"restriction_witness":["AB","CD","AC","DC","BC"],"transition_witness":["AB","CD","AC","DA","AC","BC"]}},{"name":"R4","initial_positions":["B","C","C"],"initial_family":"pair23","goal_peg":"B","rule":{"kind":"peg","source":"D","destination":"B"},"validation":{"shortest_plan":["BA","CD","CB","DC","CB","AB"],"min_moves":6,"baseline_min_moves":5,"restriction_witness":["BA","CD","CB","DB","AB"],"transition_witness":["BA","CD","CB","AC","DB","CB"]}},{"name":"R5","initial_positions":["B","C","A"],"initial_family":"separated","goal_peg":"C","rule":{"kind":"peg","source":"C","destination":"D"},"validation":{"shortest_plan":["AD","CA","DC","AC","BC"],"min_moves":5,"baseline_min_moves":4,"restriction_witness":["CD","AC","DC","BC"],"transition_witness":["CD","AC","DC","BC"]}}]},{"id":"P050","rule_type":"peg","rounds":[{"name":"R1","initial_positions":["C","B","D"],"initial_family":"separated","goal_peg":"C","rule":{"kind":"peg","source":"A","destination":"C"},"validation":{"shortest_plan":["CA","DC","AD","BC","DC"],"min_moves":5,"baseline_min_moves":4,"restriction_witness":["CA","DC","BC","AC"],"transition_witness":null}},{"name":"R2","initial_positions":["C","C","C"],"initial_family":"stacked","goal_peg":"A","rule":{"kind":"peg","source":"C","destination":"D"},"validation":{"shortest_plan":["CA","AD","CB","CA","BA","DA"],"min_moves":6,"baseline_min_moves":5,"restriction_witness":["CB","CD","CA","DA","BA"],"transition_witness":["CB","CD","CA","DA","BA"]}},{"name":"R3","initial_positions":["A","A","B"],"initial_family":"pair12","goal_peg":"D","rule":{"kind":"peg","source":"A","destination":"B"},"validation":{"shortest_plan":["AC","BD","AD","CD"],"min_moves":4,"baseline_min_moves":4,"restriction_witness":["BD","AB","AD","BD"],"transition_witness":["BD","AB","AD","BD"]}},{"name":"R4","initial_positions":["B","D","B"],"initial_family":"pair13","goal_peg":"B","rule":{"kind":"peg","source":"B","destination":"C"},"validation":{"shortest_plan":["BA","DB","AB"],"min_moves":3,"baseline_min_moves":3,"restriction_witness":["BC","DB","CB"],"transition_witness":["BC","DB","CB"]}},{"name":"R5","initial_positions":["D","B","B"],"initial_family":"pair23","goal_peg":"D","rule":{"kind":"peg","source":"A","destination":"D"},"validation":{"shortest_plan":["BA","DC","BD","AB","BD","CD"],"min_moves":6,"baseline_min_moves":5,"restriction_witness":["BA","DC","BD","AD","CD"],"transition_witness":["BA","DC","BD","AD","CD"]}}]},{"id":"P152","rule_type":"source_sequence","rounds":[{"name":"R1","initial_positions":["C","C","B"],"initial_family":"pair12","goal_peg":"C","rule":{"kind":"source_sequence","previous_source":"C","source":"B"},"validation":{"shortest_plan":["BD","CA","CB","DC","BC","AC"],"min_moves":6,"baseline_min_moves":5,"restriction_witness":["CD","CA","BC","AC","DC"],"transition_witness":null}},{"name":"R2","initial_positions":["D","C","D"],"initial_family":"pair13","goal_peg":"D","rule":{"kind":"source_sequence","previous_source":"D","source":"C"},"validation":{"shortest_plan":["DA","AB","CD","BD"],"min_moves":4,"baseline_min_moves":3,"restriction_witness":["DA","CD","AD"],"transition_witness":["DA","CD","AD"]}},{"name":"R3","initial_positions":["D","C","C"],"initial_family":"pair23","goal_peg":"B","rule":{"kind":"source_sequence","previous_source":"C","source":"A"},"validation":{"shortest_plan":["DA","CD","CB","DB","AB"],"min_moves":5,"baseline_min_moves":4,"restriction_witness":["CA","CB","AB","DB"],"transition_witness":["CA","CB","AB","DB"]}},{"name":"R4","initial_positions":["D","A","C"],"initial_family":"separated","goal_peg":"A","rule":{"kind":"source_sequence","previous_source":"B","source":"D"},"validation":{"shortest_plan":["DB","AD","CA","DA","BA"],"min_moves":5,"baseline_min_moves":4,"restriction_witness":["AB","CA","BA","DA"],"transition_witness":["AB","CA","BA","DA"]}},{"name":"R5","initial_positions":["D","D","D"],"initial_family":"stacked","goal_peg":"B","rule":{"kind":"source_sequence","previous_source":"A","source":"C"},"validation":{"shortest_plan":["DA","DC","DB","CB","AB"],"min_moves":5,"baseline_min_moves":5,"restriction_witness":["DC","DA","DB","AB","CB"],"transition_witness":["DC","DA","DB","AB","CB"]}}]},{"id":"P154","rule_type":"source_sequence","rounds":[{"name":"R1","initial_positions":["A","C","C"],"initial_family":"pair23","goal_peg":"A","rule":{"kind":"source_sequence","previous_source":"C","source":"B"},"validation":{"shortest_plan":["AB","CD","CA","DA","BA"],"min_moves":5,"baseline_min_moves":5,"restriction_witness":["AD","CB","CA","BA","DA"],"transition_witness":null}},{"name":"R2","initial_positions":["A","C","D"],"initial_family":"separated","goal_peg":"C","rule":{"kind":"source_sequence","previous_source":"C","source":"D"},"validation":{"shortest_plan":["DB","CD","BC","DC","AC"],"min_moves":5,"baseline_min_moves":4,"restriction_witness":["CB","DC","BC","AC"],"transition_witness":["CB","DC","BC","AC"]}},{"name":"R3","initial_positions":["C","C","C"],"initial_family":"stacked","goal_peg":"B","rule":{"kind":"source_sequence","previous_source":"C","source":"A"},"validation":{"shortest_plan":["CA","CD","CB","DB","AB"],"min_moves":5,"baseline_min_moves":5,"restriction_witness":["CD","CA","CB","AB","DB"],"transition_witness":["CD","CA","CB","AB","DB"]}},{"name":"R4","initial_positions":["C","C","B"],"initial_family":"pair12","goal_peg":"D","rule":{"kind":"source_sequence","previous_source":"B","source":"C"},"validation":{"shortest_plan":["BA","AD","CA","CD","AD"],"min_moves":5,"baseline_min_moves":4,"restriction_witness":["BD","CA","CD","AD"],"transition_witness":["BD","CB","CD","BD"]}},{"name":"R5","initial_positions":["B","A","B"],"initial_family":"pair13","goal_peg":"B","rule":{"kind":"source_sequence","previous_source":"B","source":"A"},"validation":{"shortest_plan":["AC","BA","CB","AB"],"min_moves":4,"baseline_min_moves":3,"restriction_witness":["BC","AB","CB"],"transition_witness":["BC","AB","CB"]}}]},{"id":"P160","rule_type":"source_sequence","rounds":[{"name":"R1","initial_positions":["C","D","A"],"initial_family":"separated","goal_peg":"C","rule":{"kind":"source_sequence","previous_source":"D","source":"B"},"validation":{"shortest_plan":["AB","CA","BC","DC","AC"],"min_moves":5,"baseline_min_moves":4,"restriction_witness":["CB","AC","DC","BC"],"transition_witness":null}},{"name":"R2","initial_positions":["B","B","B"],"initial_family":"stacked","goal_peg":"A","rule":{"kind":"source_sequence","previous_source":"C","source":"D"},"validation":{"shortest_plan":["BC","BD","BA","DA","CA"],"min_moves":5,"baseline_min_moves":5,"restriction_witness":["BD","BC","BA","CA","DA"],"transition_witness":["BD","BC","BA","CA","DA"]}},{"name":"R3","initial_positions":["C","C","B"],"initial_family":"pair12","goal_peg":"D","rule":{"kind":"source_sequence","previous_source":"C","source":"B"},"validation":{"shortest_plan":["BD","CA","CD","AD"],"min_moves":4,"baseline_min_moves":4,"restriction_witness":["BD","CB","CD","BD"],"transition_witness":["BD","CB","CD","BD"]}},{"name":"R4","initial_positions":["C","B","C"],"initial_family":"pair13","goal_peg":"B","rule":{"kind":"source_sequence","previous_source":"B","source":"C"},"validation":{"shortest_plan":["BA","AD","CA","CB","DB","AB"],"min_moves":6,"baseline_min_moves":5,"restriction_witness":["BA","CD","CB","AB","DB"],"transition_witness":["BA","CD","CB","AB","DB"]}},{"name":"R5","initial_positions":["D","C","C"],"initial_family":"pair23","goal_peg":"D","rule":{"kind":"source_sequence","previous_source":"D","source":"C"},"validation":{"shortest_plan":["CA","CB","DC","BD","AD","CD"],"min_moves":6,"baseline_min_moves":5,"restriction_witness":["CA","DB","CD","AD","BD"],"transition_witness":["CA","DB","CD","AD","BD"]}}]},{"id":"P253","rule_type":"visit","rounds":[{"name":"R1","initial_positions":["A","C","A"],"initial_family":"pair13","goal_peg":"B","rule":{"kind":"visit","visitor_disk":1,"visited_peg":"C","locked_disk":3},"validation":{"shortest_plan":["AC","AB","CD","CB","DB"],"min_moves":5,"baseline_min_moves":4,"restriction_witness":["AD","AB","CB","DB"],"transition_witness":null}},{"name":"R2","initial_positions":["A","B","B"],"initial_family":"pair23","goal_peg":"A","rule":{"kind":"visit","visitor_disk":2,"visited_peg":"C","locked_disk":3},"validation":{"shortest_plan":["AD","BC","BA","CA","DA"],"min_moves":5,"baseline_min_moves":5,"restriction_witness":["AC","BD","BA","DA","CA"],"transition_witness":["AC","BD","BA","DA","CA"]}},{"name":"R3","initial_positions":["D","A","B"],"initial_family":"separated","goal_peg":"D","rule":{"kind":"visit","visitor_disk":2,"visited_peg":"B","locked_disk":3},"validation":{"shortest_plan":["DC","AB","BA","BD","AD","CD"],"min_moves":6,"baseline_min_moves":4,"restriction_witness":["DC","BD","AD","CD"],"transition_witness":["AC","DA","BD","CD","AD"]}},{"name":"R4","initial_positions":["B","B","B"],"initial_family":"stacked","goal_peg":"C","rule":{"kind":"visit","visitor_disk":1,"visited_peg":"A","locked_disk":3},"validation":{"shortest_plan":["BA","BD","BC","DC","AC"],"min_moves":5,"baseline_min_moves":5,"restriction_witness":["BD","BA","BC","AC","DC"],"transition_witness":["BD","BA","BC","AC","DC"]}},{"name":"R5","initial_positions":["C","C","B"],"initial_family":"pair12","goal_peg":"D","rule":{"kind":"visit","visitor_disk":2,"visited_peg":"A","locked_disk":3},"validation":{"shortest_plan":["CD","CA","DC","BD","AD","CD"],"min_moves":6,"baseline_min_moves":4,"restriction_witness":["CA","BD","CD","AD"],"transition_witness":["CA","BD","CD","AD"]}}]},{"id":"P286","rule_type":"visit","rounds":[{"name":"R1","initial_positions":["C","C","C"],"initial_family":"stacked","goal_peg":"D","rule":{"kind":"visit","visitor_disk":2,"visited_peg":"D","locked_disk":3},"validation":{"shortest_plan":["CA","CD","DB","CD","BD","AD"],"min_moves":6,"baseline_min_moves":5,"restriction_witness":["CA","CB","CD","BD","AD"],"transition_witness":null}},{"name":"R2","initial_positions":["C","C","B"],"initial_family":"pair12","goal_peg":"A","rule":{"kind":"visit","visitor_disk":1,"visited_peg":"B","locked_disk":3},"validation":{"shortest_plan":["CB","BD","BA","CA","DA"],"min_moves":5,"baseline_min_moves":4,"restriction_witness":["BA","CB","CA","BA"],"transition_witness":["CA","CD","AC","BA","DA","CA"]}},{"name":"R3","initial_positions":["A","B","A"],"initial_family":"pair13","goal_peg":"B","rule":{"kind":"visit","visitor_disk":2,"visited_peg":"C","locked_disk":3},"validation":{"shortest_plan":["AD","BC","AB","CB","DB"],"min_moves":5,"baseline_min_moves":5,"restriction_witness":["AC","BD","AB","DB","CB"],"transition_witness":["AB","BC","BD","AB","DB","CB"]}},{"name":"R4","initial_positions":["D","B","B"],"initial_family":"pair23","goal_peg":"C","rule":{"kind":"visit","visitor_disk":1,"visited_peg":"C","locked_disk":3},"validation":{"shortest_plan":["BA","DC","CD","BC","AC","DC"],"min_moves":6,"baseline_min_moves":4,"restriction_witness":["BA","BC","AC","DC"],"transition_witness":["BC","CA","BC","AC","DC"]}},{"name":"R5","initial_positions":["B","D","A"],"initial_family":"separated","goal_peg":"D","rule":{"kind":"visit","visitor_disk":2,"visited_peg":"A","locked_disk":3},"validation":{"shortest_plan":["DA","AC","AD","CD","BD"],"min_moves":5,"baseline_min_moves":4,"restriction_witness":["DC","AD","CD","BD"],"transition_witness":["BC","DB","AD","BD","CD"]}}]},{"id":"P288","rule_type":"visit","rounds":[{"name":"R1","initial_positions":["D","D","D"],"initial_family":"stacked","goal_peg":"B","rule":{"kind":"visit","visitor_disk":2,"visited_peg":"C","locked_disk":3},"validation":{"shortest_plan":["DA","DC","DB","CB","AB"],"min_moves":5,"baseline_min_moves":5,"restriction_witness":["DC","DA","DB","AB","CB"],"transition_witness":null}},{"name":"R2","initial_positions":["B","B","D"],"initial_family":"pair12","goal_peg":"C","rule":{"kind":"visit","visitor_disk":1,"visited_peg":"D","locked_disk":3},"validation":{"shortest_plan":["BD","DA","DC","BC","AC"],"min_moves":5,"baseline_min_moves":4,"restriction_witness":["BA","DC","BC","AC"],"transition_witness":["BA","BC","CB","DC","BC","AC"]}},{"name":"R3","initial_positions":["C","A","C"],"initial_family":"pair13","goal_peg":"D","rule":{"kind":"visit","visitor_disk":2,"visited_peg":"B","locked_disk":3},"validation":{"shortest_plan":["AB","CA","CD","BD","AD"],"min_moves":5,"baseline_min_moves":4,"restriction_witness":["CB","CD","AD","BD"],"transition_witness":["CD","DB","CD","AD","BD"]}},{"name":"R4","initial_positions":["A","D","D"],"initial_family":"pair23","goal_peg":"A","rule":{"kind":"visit","visitor_disk":1,"visited_peg":"B","locked_disk":3},"validation":{"shortest_plan":["AB","DC","DA","CA","BA"],"min_moves":5,"baseline_min_moves":5,"restriction_witness":["AC","DB","DA","BA","CA"],"transition_witness":["AC","DB","DA","BA","CA"]}},{"name":"R5","initial_positions":["A","D","C"],"initial_family":"separated","goal_peg":"B","rule":{"kind":"visit","visitor_disk":2,"visited_peg":"A","locked_disk":3},"validation":{"shortest_plan":["AB","DA","BD","CB","AB","DB"],"min_moves":6,"baseline_min_moves":3,"restriction_witness":["CB","DB","AB"],"transition_witness":["AB","BA","CB","DB","AB"]}}]}],"metadata":{"problem_count":10,"round_count":50,"rounds_per_problem":5,"rules_per_round":1,"problems_per_rule_type":{"peg":4,"source_sequence":3,"visit":3},"type_order":["peg","source_sequence","visit"],"selection":{"method":"stratified_random_sample_without_replacement","algorithm":"Python random.Random(seed).sample in source type order; sort source IDs within each type; resolve unchanged content to benchmark IDs","seed":20261029,"type_order":["peg","source_sequence","visit"],"source_dataset_id":"hanoi_three_types_90_v1","source_sha256":"c91b72d65c160cc56de4276223b586a5e6b42b693c0c0fbac5fbcf45ab0a8cfe","benchmark_dataset_id":"hanoi_three_types_300_v2","benchmark_sha256":"ccde7f963a7b8f57298568570e0cd6dd1dbcea730e6d20b9b5833a8b3d11350f","selected_id_namespace":"hanoi_three_types_300_v2","matching_policy":"Exact problem content excluding the dataset-local id; preserve sampled order","selected_problem_ids":["P017","P035","P041","P050","P152","P154","P160","P253","P286","P288"],"problem_ids_by_type":{"peg":["P017","P035","P041","P050"],"source_sequence":["P152","P154","P160"],"visit":["P253","P286","P288"]},"uses_model_results":false},"rule_usage":{"peg":[{"rule":{"destination":"A","kind":"peg","source":"C"},"round_count":2},{"rule":{"destination":"A","kind":"peg","source":"D"},"round_count":1},{"rule":{"destination":"B","kind":"peg","source":"A"},"round_count":2},{"rule":{"destination":"B","kind":"peg","source":"C"},"round_count":2},{"rule":{"destination":"B","kind":"peg","source":"D"},"round_count":1},{"rule":{"destination":"C","kind":"peg","source":"A"},"round_count":1},{"rule":{"destination":"C","kind":"peg","source":"B"},"round_count":2},{"rule":{"destination":"C","kind":"peg","source":"D"},"round_count":2},{"rule":{"destination":"D","kind":"peg","source":"A"},"round_count":2},{"rule":{"destination":"D","kind":"peg","source":"B"},"round_count":2},{"rule":{"destination":"D","kind":"peg","source":"C"},"round_count":3}],"source_sequence":[{"rule":{"kind":"source_sequence","previous_source":"A","source":"C"},"round_count":1},{"rule":{"kind":"source_sequence","previous_source":"B","source":"A"},"round_count":1},{"rule":{"kind":"source_sequence","previous_source":"B","source":"C"},"round_count":2},{"rule":{"kind":"source_sequence","previous_source":"B","source":"D"},"round_count":1},{"rule":{"kind":"source_sequence","previous_source":"C","source":"A"},"round_count":2},{"rule":{"kind":"source_sequence","previous_source":"C","source":"B"},"round_count":3},{"rule":{"kind":"source_sequence","previous_source":"C","source":"D"},"round_count":2},{"rule":{"kind":"source_sequence","previous_source":"D","source":"B"},"round_count":1},{"rule":{"kind":"source_sequence","previous_source":"D","source":"C"},"round_count":2}],"visit":[{"rule":{"kind":"visit","locked_disk":3,"visited_peg":"A","visitor_disk":1},"round_count":1},{"rule":{"kind":"visit","locked_disk":3,"visited_peg":"A","visitor_disk":2},"round_count":3},{"rule":{"kind":"visit","locked_disk":3,"visited_peg":"B","visitor_disk":1},"round_count":2},{"rule":{"kind":"visit","locked_disk":3,"visited_peg":"B","visitor_disk":2},"round_count":2},{"rule":{"kind":"visit","locked_disk":3,"visited_peg":"C","visitor_disk":1},"round_count":2},{"rule":{"kind":"visit","locked_disk":3,"visited_peg":"C","visitor_disk":2},"round_count":3},{"rule":{"kind":"visit","locked_disk":3,"visited_peg":"D","visitor_disk":1},"round_count":1},{"rule":{"kind":"visit","locked_disk":3,"visited_peg":"D","visitor_disk":2},"round_count":1}]}}},"dataset_sha256":"34ba0b8a34e7cd41282779b7a602a90d2eff2e08291c859f0a8534bbb2029497","config":{"max_attempts":10,"success_streak":2,"r1_apply_k":true},"feedback_policy":"goal_rule_4way_v1","instructions":["하노이탑 과제를 풀어 주세요. 원반은 1, 2, 3이며, 1이 가장 작습니다. 기둥은 A, B, C, D입니다.","전체 이동 계획이 끝났을 때 모든 원반이 한 기둥에 모여 있어야 합니다. 큰 원반이 아래에, 작은 원반이 위에 있어야 합니다.","한 번에 맨 위 원반 하나만 옮길 수 있고, 큰 원반을 작은 원반 위에 놓을 수 없습니다.","계획은 1~30회의 이동으로 작성하세요. 빈 이동 계획은 제출할 수 없습니다.","각 제출은 새로 제시되는 초기 배치에서 시작합니다. 같은 문제의 이전 제출과 피드백은 기록에서 다시 볼 수 있습니다.","전체 계획을 제출한 뒤 정답, 오답, 규칙 위반, 정답이지만 규칙 위반 중 하나를 받습니다. ‘정답이지만 규칙 위반’은 목표 배치에 도달했지만 이동 제한 위반으로 정답으로 인정되지 않은 경우입니다.","피드백을 받은 뒤 다음 제출을 계속하세요. 외부 도구나 다른 사람의 도움 없이 풀어 주세요."],"source_sha256":{"index.html":"8e8f71c0e4548e3a823694e4eaf31b0938299c6053af69d072f0a04164be65a5","style.css":"9d4646428044e4baee1ed85352c89084442c8a99340cdd06e763e56f09e06ae0","engine.js":"98ea8b9be1fe2497cb974b879fa39a9cb7135967506df08e845d3fb7f4efe3d7","offline.js":"1da6916cb49cf457d8b40909ebac77fa20a319dc5f9f31f2e5e504d920da5128","app.js":"f3c7c6dd32588ef4ca5ca5bc440d611536af6a91ccfc087cebf9db1a98194e80"},"bundle_id":"fcd1a27b774629279cef576c29d19a2e17dd1eadea1d2899424f6a80dae4f4cb"};
+</script>
+<script>
+/* Offline human experiment engine. The Python grader remains the parity oracle.
+ * Additional restrictions are checked before basic legality; forbidden but legal
+ * moves still update the board. Each submission starts from its initial board.
+ */
+(function (root, factory) {
+  'use strict';
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.HanoiHumanEngine = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+  const PEGS = ['A', 'B', 'C', 'D'];
+  const PERSISTENT_ERROR_POLICY = 'previous_rule_compliant_current_failure_v1';
+  const FEEDBACK = {Correct: '정답', Incorrect: '오답', 'Rule violation': '규칙 위반',
+    'Correct, but rule violation': '정답이지만 규칙 위반'};
+  const LABELS = {peg: '기둥 조건', occupancy: '기둥 상태 조건',
+    source_sequence: '연속 출발 조건', visit: '선행 방문 조건'};
+  const clone = value => JSON.parse(JSON.stringify(value));
+  const canonical = value => JSON.stringify(normalize(value));
+  function normalize(value) {
+    if (Array.isArray(value)) return value.map(normalize);
+    if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map(key => [key, normalize(value[key])]));
+    return value;
+  }
+  const equal = (a, b) => canonical(a) === canonical(b);
+  const mean = rows => rows.length ? rows.reduce((a, b) => a + b, 0) / rows.length : null;
+  const validMoves = moves => Array.isArray(moves) && moves.length >= 1 && moves.length <= 30 && moves.every(move => typeof move === 'string' && /^[A-D]{2}$/.test(move) && move[0] !== move[1]);
+  const validToken = token => typeof token === 'string' && /^[0-9a-f]{32}$/.test(token);
+  const validDate = stamp => typeof stamp === 'string' && Number.isFinite(Date.parse(stamp));
+  function token() {
+    if (typeof globalThis.crypto !== 'undefined' && globalThis.crypto.getRandomValues) {
+      return Array.from(globalThis.crypto.getRandomValues(new Uint8Array(16)), x => x.toString(16).padStart(2, '0')).join('');
+    }
+    if (typeof require === 'function') return require('node:crypto').randomBytes(16).toString('hex');
+    throw Error('이 브라우저에서는 참여 기록을 만들 수 없습니다. 최신 브라우저에서 열어 주세요.');
+  }
+  function evaluate(moves, round) {
+    const restriction = round.rule, positions = round.initial_positions.slice();
+    const pegs = Object.fromEntries(PEGS.map(p => [p, [3, 2, 1].filter(d => positions[d - 1] === p)]));
+    let previousSource = null, visited = restriction.kind === 'visit' && positions[restriction.visitor_disk - 1] === restriction.visited_peg;
+    let baseError = null;
+    const violations = [];
+    if (!Array.isArray(moves) || moves.length < 1 || moves.length > 30) baseError = {step: null, move: null, disk: null, kind: 'invalid_plan'};
+    for (let index = 0; !baseError && index < moves.length; index++) {
+      const move = moves[index], step = index + 1;
+      if (typeof move !== 'string' || !/^[A-D]{2}$/.test(move) || move[0] === move[1]) {
+        baseError = {step, move, disk: null, kind: 'invalid_command'}; break;
+      }
+      const [source, target] = move;
+      const disk = pegs[source].length ? pegs[source][pegs[source].length - 1] : null;
+      let violates;
+      switch (restriction.kind) {
+        case 'peg': violates = source === restriction.source && target === restriction.destination; break;
+        case 'occupancy': violates = positions.includes(restriction.occupied_peg) && source === restriction.source && target === restriction.destination; break;
+        case 'source_sequence': violates = previousSource === restriction.previous_source && source === restriction.source; break;
+        case 'visit': violates = disk === restriction.locked_disk && !visited; break;
+        default: throw Error('지원하지 않는 이동 제한입니다.');
+      }
+      if (violates) violations.push({step, move, disk, kind: restriction.kind});
+      if (disk === null) { baseError = {step, move, disk, kind: 'empty_source'}; break; }
+      if (pegs[target].length && disk > pegs[target][pegs[target].length - 1]) {
+        baseError = {step, move, disk, kind: 'larger_on_smaller'}; break;
+      }
+      pegs[target].push(pegs[source].pop());
+      positions[disk - 1] = target;
+      previousSource = source;
+      if (restriction.kind === 'visit' && disk === restriction.visitor_disk && target === restriction.visited_peg) visited = true;
+    }
+    const baseValid = baseError === null;
+    const goalReached = baseValid ? equal(pegs[round.goal_peg], [3, 2, 1]) : null;
+    return {current_success: Boolean(baseValid && !violations.length && goalReached), base_valid: baseValid,
+      base_error: baseError, movement_rule_violations: violations, movement_rule_error: Boolean(violations.length),
+      goal_reached: goalReached, goal_error: baseValid ? !goalReached : null};
+  }
+  function grade(input, roundNumber, problem) {
+    const moves = validMoves(input) ? clone(input) : null;
+    const currentRound = problem.rounds[roundNumber - 1], current = evaluate(moves, currentRound);
+    const previous = roundNumber > 1 ? evaluate(moves, {...problem.rounds[roundNumber - 2],
+      initial_positions: currentRound.initial_positions, goal_peg: currentRound.goal_peg}) : null;
+    // Previous-rule compliance uses the current initial board, independently of either goal.
+    const previousRuleCompliant = previous === null ? null : previous.base_valid && !previous.movement_rule_error;
+    let feedback = 'Incorrect', code = 'incorrect';
+    if (current.current_success) { feedback = 'Correct'; code = 'correct'; }
+    else if (current.movement_rule_error) {
+      if (current.base_valid && current.goal_reached) { feedback = 'Correct, but rule violation'; code = 'goal_reached_rule_violation'; }
+      else { feedback = 'Rule violation'; code = 'rule_violation'; }
+    }
+    return {moves, parse_valid: moves !== null, ...current,
+      previous_success: previous === null ? null : previous.current_success,
+      previous_rule_compliant: previousRuleCompliant,
+      persistent_error: roundNumber > 1 ? previousRuleCompliant && !current.current_success : null,
+      persistent_error_policy: PERSISTENT_ERROR_POLICY,
+      feedback, correctness_feedback: current.current_success ? 'Correct' : 'Incorrect',
+      feedback_code: code, feedback_policy: 'goal_rule_4way_v1'};
+  }
+  function stats(rows) {
+    const failures = rows.filter(x => !x.current_success).length;
+    const pe = rows.filter(x => x.persistent_error).length;
+    return {attempts: rows.length, successes: rows.length - failures, failures,
+      persistent_errors: pe, general_errors: failures - pe,
+      persistent_error_rate: rows.length ? pe / rows.length : null,
+      failure_rate: rows.length ? failures / rows.length : null,
+      movement_rule_errors: rows.filter(x => x.movement_rule_error === true).length,
+      goal_errors: rows.filter(x => x.goal_error === true).length,
+      goal_evaluated_attempts: rows.filter(x => x.goal_error !== null).length,
+      base_errors: rows.filter(x => x.parse_valid === true && x.base_valid === false).length};
+  }
+  function createEngine(inputBundle, options = {}) {
+    const bundle = clone(inputBundle), {dataset, config, instructions} = bundle;
+    if (!dataset || !Array.isArray(dataset.problems) || !dataset.problems.length ||
+        !config || !Number.isInteger(config.max_attempts) || config.max_attempts < 1 ||
+        !Number.isInteger(config.success_streak) || config.success_streak < 1 || config.success_streak > config.max_attempts ||
+        typeof config.r1_apply_k !== 'boolean' || !Array.isArray(instructions) ||
+        typeof bundle.bundle_id !== 'string' || typeof bundle.dataset_sha256 !== 'string') throw Error('실험 설정이 올바르지 않습니다.');
+    const problems = dataset.problems;
+    const clock = options.now || (() => new Date().toISOString());
+    const newToken = options.token || token;
+    const policies = [1, 2, 3, 4, 5].map(round => ({round, max_attempts: config.max_attempts,
+      success_streak_required: round > 1 || config.r1_apply_k ? config.success_streak : 1}));
+    const protocol = {version: 'hanoi_human_offline_v2', bundle_id: bundle.bundle_id,
+      config: clone(config), feedback_policy: 'goal_rule_4way_v1', dataset: clone(dataset),
+      dataset_sha256: bundle.dataset_sha256, participant_instructions: clone(instructions),
+      input_policy: 'Peg-click full plan; basic-mechanics invalid clicks are blocked. Hidden restrictions are evaluated only after submission.',
+      empty_plan_policy: '1..30 moves required; round trips allowed.',
+      persistent_error_policy: PERSISTENT_ERROR_POLICY};
+    function create(participant) {
+      if (typeof participant !== 'string' || !/^[A-Za-z0-9_-]{1,40}$/.test(participant)) throw Error('참여 코드는 영문, 숫자, 밑줄, 하이픈으로 1~40자 입력하세요.');
+      const timestamp = clock();
+      return {session_id: newToken(), participant_id: participant, created_at: timestamp, updated_at: timestamp,
+        turn_started_at: timestamp, episode: 1, round: 1, attempt: 1, streak: 0, turn_token: newToken(),
+        finished: false, awaiting_continue: false, records: [], receipts: {}};
+    }
+    function publicState(state) {
+      const last = state.records[state.records.length - 1], waiting = state.awaiting_continue;
+      const complete = state.finished && !waiting;
+      const episode = waiting ? last.episode : Math.min(state.episode, problems.length);
+      const positions = waiting ? last.initial_positions : complete ? null : problems[episode - 1].rounds[state.round - 1].initial_positions;
+      return {session_id: state.session_id, participant_id: state.participant_id, problem_number: episode,
+        problem_count: problems.length, initial_positions: positions ? clone(positions) : null,
+        instructions: clone(instructions), history: state.records.filter(r => r.episode === episode).map((r, i) => ({
+          number: i + 1, initial_positions: clone(r.initial_positions), moves: clone(r.moves), feedback: FEEDBACK[r.feedback]})),
+        awaiting_continue: waiting, complete, turn_token: state.turn_token,
+        feedback: waiting ? FEEDBACK[last.feedback] : null, updated_at: state.updated_at};
+    }
+    function submit(before, turnToken, moves, replayAt) {
+      if (Object.prototype.hasOwnProperty.call(before.receipts, turnToken)) {
+        if (!equal(before.receipts[turnToken], moves)) throw Error('이미 저장된 제출과 내용이 다릅니다.');
+        return clone(before);
+      }
+      if (before.finished || before.awaiting_continue || turnToken !== before.turn_token) throw Error('진행 상태가 변경되었습니다. 저장된 진행을 다시 불러오세요.');
+      if (!validMoves(moves)) throw Error('1~30회 이동으로 전체 계획을 작성하세요.');
+      const state = clone(before), problem = problems[state.episode - 1], round = problem.rounds[state.round - 1];
+      const result = grade(moves, state.round, problem);
+      if (!result.base_valid) throw Error('기본 이동법에 맞지 않는 계획입니다. 계획을 다시 확인하세요.');
+      const policy = policies[state.round - 1], timestamp = replayAt || clock();
+      const elapsed = Math.max(0, (Date.parse(timestamp) - Date.parse(state.turn_started_at)) / 1000);
+      state.streak = result.current_success ? state.streak + 1 : 0;
+      const passed = state.streak >= policy.success_streak_required;
+      state.records.push({...result, call: state.records.length + 1, episode: state.episode,
+        problem_id: problem.id, condition: problem.rule_type, round: state.round, attempt: state.attempt,
+        initial_positions: clone(round.initial_positions), initial_family: round.initial_family,
+        rule_snapshot: {name: round.name, goal_peg: round.goal_peg, candidate_rule: clone(round.rule),
+          initial_positions: clone(round.initial_positions), initial_family: round.initial_family},
+        raw_output: JSON.stringify({moves}), success_streak: state.streak,
+        success_streak_required: policy.success_streak_required, round_success: passed,
+        elapsed_seconds: elapsed, submitted_at: timestamp, turn_started_at: state.turn_started_at,
+        turn_token: turnToken, refusal: false, usage: null});
+      const exhausted = state.attempt >= policy.max_attempts && !passed;
+      if (exhausted || (passed && state.round === 5)) Object.assign(state, {episode: state.episode + 1, round: 1, attempt: 1, streak: 0});
+      else if (passed) Object.assign(state, {round: state.round + 1, attempt: 1, streak: 0});
+      else state.attempt++;
+      state.finished = state.episode > problems.length;
+      state.receipts[turnToken] = clone(moves);
+      state.awaiting_continue = true;
+      state.updated_at = timestamp;
+      return state;
+    }
+    function advance(before, turnToken) {
+      const state = clone(before);
+      if (turnToken !== state.turn_token || !state.awaiting_continue) return state;
+      const timestamp = clock();
+      Object.assign(state, {awaiting_continue: false, turn_token: newToken(), turn_started_at: timestamp, updated_at: timestamp});
+      return state;
+    }
+    function summarize(records) {
+      // Summaries require records with this engine's metric policy and diagnostics.
+      if (records.some(row => row.persistent_error_policy !== PERSISTENT_ERROR_POLICY ||
+          (row.round === 1 ? row.previous_rule_compliant !== null || row.persistent_error !== null :
+            typeof row.previous_rule_compliant !== 'boolean' ||
+            row.persistent_error !== (row.previous_rule_compliant && !row.current_success)))) {
+        throw Error('지속적 오류 계산 기준이 다른 기록은 함께 집계할 수 없습니다. 원본 기록으로 별도 재분석하세요.');
+      }
+      const episodes = problems.map((problem, index) => {
+        const episode = index + 1, batch = records.filter(x => x.episode === episode);
+        let exhaustedAt = null;
+        const rounds = policies.map(policy => {
+          const number = policy.round, rows = batch.filter(x => x.round === number);
+          const entry = {round: number, ...stats(rows), first_success_attempt: (rows.find(x => x.current_success) || {}).attempt ?? null};
+          let streak = 0, peak = 0, metAt = null, repeats = 0;
+          const failed = new Set();
+          for (const row of rows) {
+            streak = row.current_success ? streak + 1 : 0;
+            peak = Math.max(peak, streak);
+            if (streak >= policy.success_streak_required && metAt === null) metAt = row.attempt;
+            if (!row.current_success) { const key = canonical(row.moves); if (failed.has(key)) repeats++; failed.add(key); }
+          }
+          const validSequence = rows.every((x, i) => x.attempt === i + 1) && rows.length <= policy.max_attempts && (metAt === null || metAt === rows.length);
+          const complete = Boolean(validSequence && rows.length && (metAt !== null || rows.length === policy.max_attempts));
+          Object.assign(entry, {success_streak: streak, max_success_streak: peak, criterion_met_at: metAt,
+            success_streak_required: policy.success_streak_required, complete, max_attempts: policy.max_attempts,
+            status: complete ? metAt !== null ? 'success' : 'exhausted' : rows.length ? 'in_progress' : 'pending',
+            repeat_of_identical_failed_plan: repeats});
+          if (number === 1) { entry.persistent_errors = null; entry.persistent_error_rate = null; }
+          if (exhaustedAt !== null && !rows.length) Object.assign(entry, {status: 'excluded', excluded_reason: 'prior_round_exhausted', excluded_after_round: exhaustedAt});
+          if (entry.status === 'exhausted' && exhaustedAt === null) exhaustedAt = number;
+          return entry;
+        });
+        const scoredRounds = rounds.filter(r => r.round > 1 && r.attempts), errorRounds = rounds.filter(r => r.attempts);
+        return {episode, problem_id: problem.id, condition: problem.rule_type,
+          complete: rounds.every(r => r.complete || r.status === 'excluded'), exhausted_at_round: exhaustedAt,
+          rounds, scored: stats(batch.filter(r => r.round > 1)),
+          per_by_round: Object.fromEntries(rounds.filter(r => r.round > 1).map(r => [r.round, r.persistent_error_rate])),
+          error_rate_by_round: Object.fromEntries(rounds.map(r => [r.round, r.failure_rate])),
+          eligible_scored_rounds: scoredRounds.length, mpe: mean(scoredRounds.map(r => r.persistent_error_rate)),
+          mean_error_rate: mean(errorRounds.map(r => r.failure_rate)), eligible_error_rounds: errorRounds.length,
+          error_metric_eligible: Boolean(errorRounds.length), metric_eligible: Boolean(scoredRounds.length)};
+      });
+      const scored = records.filter(r => r.round > 1), mpes = episodes.filter(e => e.metric_eligible).map(e => e.mpe);
+      const errors = episodes.filter(e => e.error_metric_eligible).map(e => e.mean_error_rate);
+      const conditions = {};
+      for (const kind of Object.keys(LABELS)) {
+        const members = episodes.filter(e => e.condition === kind);
+        if (!members.length) continue;
+        const eligible = members.filter(e => e.metric_eligible), errorEligible = members.filter(e => e.error_metric_eligible);
+        const completed = members.filter(e => e.complete);
+        conditions[kind] = {label: LABELS[kind], problem_count: members.length, completed_problems: completed.length,
+          ...stats(scored.filter(r => r.condition === kind)), metric_eligible_problems: eligible.length,
+          error_metric_eligible_problems: errorEligible.length, mpe: mean(eligible.map(e => e.mpe)),
+          mean_error_rate: mean(errorEligible.map(e => e.mean_error_rate)),
+          complete_problem_rate_mean: mean(completed.map(e => e.scored.persistent_error_rate).filter(x => x !== null))};
+      }
+      const rates = episodes.filter(e => e.complete).map(e => e.scored.persistent_error_rate).filter(x => x !== null);
+      let minimum = 0;
+      for (const policy of policies.slice().reverse()) minimum = Math.min(policy.max_attempts, policy.success_streak_required + minimum);
+      return {source: 'Human', complete: episodes.every(e => e.complete), early_stopping: true,
+        success_streak_required: config.success_streak, baseline_until_success: false,
+        planned_submissions: config.max_attempts * 5 * problems.length, min_submissions: minimum * problems.length,
+        max_submissions: config.max_attempts * 5 * problems.length, scored_max_submissions: config.max_attempts * 4 * problems.length,
+        baseline_submissions: records.filter(r => r.round === 1).length, recorded_submissions: records.length,
+        completed_rounds: episodes.reduce((sum, e) => sum + e.rounds.filter(r => r.complete).length, 0), total_rounds: 5 * problems.length,
+        successful_rounds: episodes.reduce((sum, e) => sum + e.rounds.filter(r => r.status === 'success').length, 0),
+        exhausted_rounds: episodes.reduce((sum, e) => sum + e.rounds.filter(r => r.status === 'exhausted').length, 0),
+        scored_rounds: [2, 3, 4, 5], pooled: stats(scored),
+        persistent_error_policy: PERSISTENT_ERROR_POLICY,
+        metric_policy: 'round_per_then_problem_mpe_then_total_mpe_v1',
+        error_metric_policy: 'round_error_rate_r1_r5_then_problem_mean_then_total_mean_v2',
+        metric_definition: {persistent_error: 'current failure with basic-valid replay from the current initial board and no previous-round movement restriction violation; neither goal is required for previous-rule compliance',
+          round_per: 'persistent_errors / actual graded submissions in that round',
+          problem_mpe: 'unweighted mean of observed R2-R5 PERs', total_mpe: 'unweighted mean of eligible problem MPEs',
+          round_error_rate: 'incorrect submissions / actual graded submissions',
+          problem_mean_error_rate: 'unweighted mean of observed R1-R5 error rates',
+          total_mean_error_rate: 'unweighted mean of observed problem mean error rates',
+          r1: 'excluded from PER/MPE; included in error rate', missing: 'unattempted rounds excluded, never zero-filled', scale: 'fraction in JSON'},
+        total_mpe: mean(mpes), total_mean_error_rate: mean(errors), metric_eligible_problems: mpes.length,
+        error_metric_eligible_problems: errors.length, problem_mpes: mpes, problem_mean_error_rates: errors,
+        problems_in_mpe_target_band: mpes.filter(x => x >= 0.3 && x <= 0.5).length,
+        excluding_first_attempt: stats(scored.filter(r => r.attempt > 1)), episodes, conditions,
+        complete_episode_rate_mean: mean(rates), complete_episode_rates: rates,
+        episodes_in_target_band: rates.filter(x => x >= 0.3 && x <= 0.5).length,
+        completed_episodes: episodes.filter(e => e.complete).length, metric_eligible_completed_episodes: rates.length,
+        excluded_rounds: episodes.reduce((sum, e) => sum + e.rounds.filter(r => r.status === 'excluded').length, 0),
+        exhausted_problems: episodes.filter(e => e.exhausted_at_round !== null).length, stop_problem_on_exhaustion: true,
+        format_failures: records.filter(r => !r.parse_valid).length, refusals: records.filter(r => r.refusal).length,
+        usage: {input_tokens: 0, output_tokens: 0, total_tokens: 0},
+        timing_policy: 'Browser wall time from opening a plan to submission, including idle time; excludes feedback-screen time.',
+        total_elapsed_seconds: records.reduce((sum, r) => sum + r.elapsed_seconds, 0)};
+    }
+    function exportResult(state) {
+      const checkpoint = clone(state);
+      delete checkpoint.records; delete checkpoint.receipts;
+      return {schema_version: 3, kind: 'hanoi_human_result', bundle_id: bundle.bundle_id,
+        session_id: state.session_id, participant_id: state.participant_id,
+        created_at: state.created_at, updated_at: state.updated_at, finished: state.finished,
+        protocol: clone(protocol), records: clone(state.records),
+        summary: {...summarize(state.records), execution_finished: state.finished}, checkpoint};
+    }
+    function importResult(document) {
+      const fail = () => { throw Error('저장 파일의 실험 조건이나 진행 기록이 일치하지 않습니다. 이 HTML에서 저장한 원본 JSON을 선택하세요.'); };
+      if (document && document.kind === 'hanoi_human_result' && document.protocol &&
+          document.protocol.persistent_error_policy !== PERSISTENT_ERROR_POLICY) {
+        throw Error('저장 파일의 지속적 오류 계산 기준이 이 평가와 일치하지 않습니다. 이 HTML에서 저장한 JSON을 선택하세요.');
+      }
+      if (!document || document.schema_version !== 3 || document.kind !== 'hanoi_human_result' ||
+          document.bundle_id !== bundle.bundle_id || !equal(document.protocol, protocol) ||
+          !validToken(document.session_id) || typeof document.participant_id !== 'string' || !/^[A-Za-z0-9_-]{1,40}$/.test(document.participant_id) ||
+          !validDate(document.created_at) || !validDate(document.updated_at) || !Array.isArray(document.records) ||
+          document.records.length > problems.length * 5 * config.max_attempts) fail();
+      const checkpoint = document.checkpoint;
+      if (!checkpoint || !validToken(checkpoint.turn_token) || !validDate(checkpoint.turn_started_at) ||
+          typeof checkpoint.awaiting_continue !== 'boolean') fail();
+      let state = {session_id: document.session_id, participant_id: document.participant_id,
+        created_at: document.created_at, updated_at: document.created_at, turn_started_at: document.created_at,
+        episode: 1, round: 1, attempt: 1, streak: 0, turn_token: checkpoint.turn_token,
+        finished: false, awaiting_continue: false, records: [], receipts: {}};
+      let previousSubmitted = document.created_at;
+      for (let index = 0; index < document.records.length; index++) {
+        const record = document.records[index];
+        if (!record || !validToken(record.turn_token) || Object.prototype.hasOwnProperty.call(state.receipts, record.turn_token) ||
+            !validDate(record.submitted_at) || !validDate(record.turn_started_at) ||
+            Date.parse(record.turn_started_at) < Date.parse(previousSubmitted) || Date.parse(record.submitted_at) < Date.parse(record.turn_started_at) ||
+            (index === 0 && record.turn_started_at !== document.created_at)) fail();
+        Object.assign(state, {awaiting_continue: false, turn_token: record.turn_token, turn_started_at: record.turn_started_at});
+        try { state = submit(state, record.turn_token, record.moves, record.submitted_at); } catch { fail(); }
+        if (!equal(state.records[state.records.length - 1], record)) fail();
+        previousSubmitted = record.submitted_at;
+      }
+      if (checkpoint.awaiting_continue) {
+        if (!state.records.length || checkpoint.turn_token !== state.turn_token || checkpoint.turn_started_at !== state.turn_started_at || document.updated_at !== state.updated_at) fail();
+      } else {
+        if (Date.parse(checkpoint.turn_started_at) < Date.parse(previousSubmitted) || document.updated_at !== checkpoint.turn_started_at ||
+            (state.records.length && Object.prototype.hasOwnProperty.call(state.receipts, checkpoint.turn_token)) ||
+            (!state.records.length && checkpoint.turn_started_at !== document.created_at)) fail();
+        Object.assign(state, {awaiting_continue: false, turn_token: checkpoint.turn_token,
+          turn_started_at: checkpoint.turn_started_at, updated_at: checkpoint.turn_started_at});
+      }
+      const rebuilt = exportResult(state);
+      for (const key of ['session_id', 'participant_id', 'created_at', 'updated_at', 'finished', 'records', 'summary', 'checkpoint']) {
+        if (!equal(rebuilt[key], document[key])) fail();
+      }
+      return state;
+    }
+    return {create, public: publicState, submit, advance, export: exportResult, import: importResult,
+      summarize, grade, evaluate, config: clone(config)};
+  }
+  return {createEngine, grade, evaluate};
+});
+
+</script>
+<script>
+/* Local transport for the self-contained HTML edition. No network requests. */
+(() => {
+  'use strict';
+  if (!window.HANOI_BUNDLE) return;
+  const engine = window.HanoiHumanEngine.createEngine(window.HANOI_BUNDLE);
+  const prefix = 'hanoi-human-offline-' + window.HANOI_BUNDLE.bundle_id + '-';
+  const keys = {session: prefix + 'session', draft: prefix + 'draft'};
+  const memory = new Map(), dirty = new Set();
+  let current = null, lastStored = null, storageFailed = false;
+  const storage = {
+    get(key) {
+      if (dirty.has(key)) return memory.get(key) ?? null;
+      try { const value = localStorage.getItem(key); if (value !== null) { memory.set(key, value); return value; } }
+      catch { storageFailed = true; }
+      return memory.get(key) ?? null;
+    },
+    set(key, value) {
+      memory.set(key, value);
+      try { localStorage.setItem(key, value); dirty.delete(key); }
+      catch { storageFailed = true; dirty.add(key); }
+    },
+    remove(key) {
+      memory.delete(key);
+      try { localStorage.removeItem(key); dirty.delete(key); }
+      catch { storageFailed = true; dirty.add(key); }
+    },
+  };
+  function status() {
+    return storageFailed ? '자동 저장 불가 · JSON을 내려받아 보관하세요' : '이 브라우저에 임시 저장됨 · JSON으로 보관';
+  }
+  function recordKey(token) { return prefix + 'record-' + token; }
+  function persist(next) {
+    const serialized = JSON.stringify(engine.export(next));
+    storage.set(recordKey(next.session_id), serialized);
+    storage.set(keys.session, next.session_id);
+    current = next; lastStored = serialized;
+    return engine.public(current);
+  }
+  function load(token) {
+    if (typeof token !== 'string' || !/^[a-f0-9]{32}$/.test(token)) throw Error('저장된 진행 JSON을 불러오세요.');
+    const serialized = storage.get(recordKey(token));
+    if (!serialized) throw Error('이 브라우저에 저장된 진행이 없습니다. 내려받은 JSON을 불러오세요.');
+    // A newer checkpoint from another tab must be used before grading a click.
+    if (!current || current.session_id !== token || serialized !== lastStored) {
+      current = engine.import(JSON.parse(serialized)); lastStored = serialized;
+    }
+    return current;
+  }
+  function normalizeDraft(draft, state) {
+    if (!draft || draft.session_id !== state.session_id || draft.turn_token !== state.turn_token ||
+        !Array.isArray(draft.plan) || draft.plan.length > 30 ||
+        !draft.plan.every(move => typeof move === 'string' && /^[ABCD]{2}$/.test(move))) return null;
+    return {session_id: draft.session_id, turn_token: draft.turn_token, plan: [...draft.plan], pending: null};
+  }
+  const perform = (path, body) => {
+    if (path === '/api/instructions') return {instructions: window.HANOI_BUNDLE.instructions};
+    if (path === '/api/start') {
+      storage.remove(keys.draft);
+      return persist(engine.create(body.participant_id));
+    }
+    if (path.startsWith('/api/session?')) return engine.public(load(decodeURIComponent(path.split('session=')[1])));
+    if (path === '/api/submit' || path === '/api/continue') {
+      const state = load(body.session_id);
+      if (path === '/api/submit') return persist(engine.submit(state, body.turn_token, body.moves));
+      return persist(engine.advance(state, body.turn_token));
+    }
+    throw Error('지원하지 않는 로컬 작업입니다.');
+  };
+  async function api(path, body) {
+    if (body && typeof navigator !== 'undefined' && navigator.locks) {
+      return navigator.locks.request(prefix + 'write', () => perform(path, body));
+    }
+    return perform(path, body);
+  }
+  function exportDocument(draft) {
+    if (!current) throw Error('먼저 과제를 시작하세요.');
+    const state = load(current.session_id);
+    const data = engine.export(state);
+    const normalized = normalizeDraft(draft, state);
+    if (normalized) data.ui_draft = normalized;
+    return data;
+  }
+  function download(draft) {
+    const data = exportDocument(draft);
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'Hanoi_' + data.participant_id + '_' + data.session_id.slice(0, 8) + '.json';
+    document.body.append(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  }
+  function importDocument(data) {
+    const next = engine.import(data);
+    const draft = normalizeDraft(data.ui_draft, next);
+    const view = persist(next);
+    storage.remove(keys.draft);
+    if (draft) storage.set(keys.draft, JSON.stringify(draft));
+    return view;
+  }
+  window.HANOI_OFFLINE = {api, keys, storage, status, storageWarning: () => storageFailed, download, importDocument, exportDocument};
+})();
+
+</script>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const PEGS = ['A', 'B', 'C', 'D'];
+  const offline = window.HANOI_OFFLINE;
+  if (!offline) {
+    $('error').textContent = 'Hanoi_Human_Evaluation.html 파일을 열어 주세요.';
+    $('error').hidden = false;
+    return;
+  }
+  const KEY = offline.keys.session, DRAFT = offline.keys.draft;
+  let state = null, plan = [], source = null, busy = false, pending = null, instructions = [];
+  const storage = offline.storage;
+  async function api(path, body) { return offline.api(path, body); }
+  function renderSaveStatus() {
+    $('save-status').textContent = offline.status();
+    $('save-status').setAttribute('data-warning', String(offline.storageWarning()));
+  }
+  function error(value) { $('error').textContent = value.message || String(value); $('error').hidden = false; }
+  function clearError() { $('error').hidden = true; }
+  function el(tag, className, text) { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = text; return node; }
+  function boardFrom(positions) {
+    const board = Object.fromEntries(PEGS.map(p => [p, []]));
+    for (let disk = 3; disk >= 1; disk--) board[positions[disk - 1]].push(disk);
+    return board;
+  }
+  function replay(positions, moves) {
+    const board = boardFrom(positions), steps = [];
+    for (const command of moves) {
+      if (typeof command !== 'string' || command.length !== 2 || !PEGS.includes(command[0]) || !PEGS.includes(command[1]) || command[0] === command[1]) return null;
+      const from = board[command[0]], to = board[command[1]], disk = from.at(-1);
+      if (disk === undefined || (to.length && to.at(-1) < disk)) return null;
+      from.pop(); to.push(disk); steps.push({command, disk});
+    }
+    return {board, steps};
+  }
+  function renderBoard(mount, board, interactive = false) {
+    mount.replaceChildren();
+    for (const peg of PEGS) {
+      const button = el('button', 'peg' + (interactive && source === peg ? ' selected' : ''));
+      button.type = 'button'; button.disabled = !interactive || busy || !!pending || state?.awaiting_continue;
+      button.setAttribute('aria-label', `기둥 ${peg}: ${board[peg].length ? '아래부터 원반 ' + board[peg].join(', ') : '비어 있음'}`);
+      if (interactive) { button.setAttribute('aria-pressed', String(source === peg)); button.addEventListener('click', () => clickPeg(peg)); }
+      button.append(el('span', 'rod'), el('span', 'base'), el('span', 'peg-letter', peg));
+      const stack = el('span', 'stack');
+      for (const disk of board[peg]) stack.append(el('span', `disk disk-${disk}`, disk));
+      button.append(stack); mount.append(button);
+    }
+  }
+  function moveList(mount, steps) {
+    mount.replaceChildren();
+    steps.forEach(({command, disk}, index) => {
+      const item = el('li', 'move-chip');
+      item.append(el('small', '', index + 1), el('span', 'disk-label', `원반 ${disk}`), el('strong', '', command.split('').join(' → ')));
+      mount.append(item);
+    });
+  }
+  function saveDraft() {
+    if (!state) return;
+    storage.set(DRAFT, JSON.stringify({session_id: state.session_id, turn_token: state.turn_token, plan, pending}));
+    renderSaveStatus();
+  }
+  function clickPeg(peg) {
+    if (busy || pending || state.awaiting_continue || plan.length >= 30) return;
+    const result = replay(state.initial_positions, plan);
+    if (!source) {
+      if (!result.board[peg].length) { $('move-hint').textContent = '원반이 있는 출발 기둥을 선택하세요.'; return; }
+      source = peg; renderPlan(); return;
+    }
+    if (source === peg) { source = null; renderPlan(); return; }
+    const candidate = [...plan, source + peg];
+    if (!replay(state.initial_positions, candidate)) { $('move-hint').textContent = '큰 원반을 작은 원반 위에 놓을 수 없습니다.'; return; }
+    plan = candidate; source = null; saveDraft(); renderPlan();
+  }
+  function renderPlan() {
+    if (!state || !state.initial_positions) return;
+    const result = replay(state.initial_positions, plan);
+    renderBoard($('board'), result.board, true); moveList($('moves'), result.steps);
+    $('move-count').textContent = `${plan.length} / 30`; $('empty-plan').hidden = !!plan.length;
+    $('undo').disabled = !plan.length || busy || !!pending || state.awaiting_continue;
+    $('reset').disabled = !plan.length || busy || !!pending || state.awaiting_continue;
+    $('submit').disabled = busy || (!pending && !plan.length);
+    $('submit').textContent = pending ? '저장 확인 / 다시 전송' : '계획 제출';
+    $('continue').disabled = busy;
+    $('submission-bar').hidden = state.awaiting_continue;
+    $('feedback-panel').hidden = !state.awaiting_continue;
+    $('move-hint').textContent = state.awaiting_continue ? '피드백을 확인한 뒤 계속하기를 누르세요.' : pending ? '제출 저장을 확인해 주세요.' : plan.length >= 30 ? '이동 계획을 제출하거나 수정하세요.' : source ? `${source}에서 이동할 도착 기둥을 선택하세요.` : '출발 기둥을 선택하세요.';
+  }
+  function badgeClass(feedback) { return feedback === '정답' ? 'correct' : feedback === '오답' ? 'incorrect' : 'violation'; }
+  function renderHistory() {
+    $('history').replaceChildren(); $('history-count').textContent = state.history.length;
+    if (!state.history.length) $('history').append(el('p', 'history-empty', '아직 제출한 계획이 없습니다.'));
+    for (const entry of [...state.history].reverse()) {
+      const item = el('details', 'history-item'), summary = el('summary');
+      summary.append(el('strong', '', `제출 ${entry.number}`), el('span', `badge ${badgeClass(entry.feedback)}`, entry.feedback));
+      const detail = el('div', 'history-detail'); detail.append(el('p', '', '이 제출의 초기 배치'));
+      const board = el('div', 'board'); renderBoard(board, boardFrom(entry.initial_positions)); detail.append(board);
+      const list = el('ol', 'move-list'); const result = entry.moves && replay(entry.initial_positions, entry.moves);
+      if (result) moveList(list, result.steps); else list.append(el('li', 'subtle', '이동 계획을 확인할 수 없습니다.'));
+      detail.append(list);
+      const copy = el('button', 'secondary', '이 계획을 불러와 수정하기');
+      copy.disabled = busy || !!pending || state.awaiting_continue || !entry.moves;
+      copy.addEventListener('click', () => {
+        if (!replay(state.initial_positions, entry.moves)) return error(Error('현재 초기 배치에서 실행할 수 없는 이동이 포함되어 있습니다. 새 계획을 작성하세요.'));
+        plan = [...entry.moves]; source = null; clearError(); saveDraft(); renderPlan();
+      });
+      detail.append(copy); item.append(summary, detail); $('history').append(item);
+    }
+  }
+  function renderInstructions() {
+    for (const id of ['welcome-instructions', 'help-instructions']) { $(id).replaceChildren(); instructions.forEach(text => $(id).append(el('p', '', text))); }
+  }
+  function accept(next, preserveDraft = false) {
+    const prior = state; state = next; instructions = next.instructions; storage.set(KEY, next.session_id);
+    $('welcome').hidden = true; $('task').hidden = next.complete; $('complete').hidden = !next.complete; $('export').hidden = false;
+    renderSaveStatus(); renderInstructions(); source = null; pending = null;
+    plan = [];
+    if (next.awaiting_continue) plan = next.history.at(-1)?.moves || [];
+    else if (preserveDraft) {
+      try {
+        const draft = JSON.parse(storage.get(DRAFT));
+        if (draft?.session_id === next.session_id && draft.turn_token === next.turn_token && Array.isArray(draft.plan) && draft.plan.length <= 30 && replay(next.initial_positions, draft.plan)) {
+          plan = draft.plan; pending = draft.pending || null;
+        }
+      } catch {}
+    }
+    if (next.awaiting_continue || next.complete || (prior && prior.turn_token !== next.turn_token && !preserveDraft)) storage.remove(DRAFT);
+    $('problem-title').replaceChildren(document.createTextNode(`문제 ${next.problem_number} `), el('span', '', `/ ${next.problem_count}`));
+    $('participant-label').textContent = `참여 코드 ${next.participant_id}`;
+    $('feedback').textContent = next.feedback || ''; $('feedback').className = badgeClass(next.feedback);
+    if (!next.complete) { renderPlan(); renderHistory(); }
+  }
+  async function resume(token) {
+    clearError(); busy = true;
+    try { const next = await api('/api/session?session=' + encodeURIComponent(token)); busy = false; accept(next, true); }
+    catch (value) { error(value); }
+    finally { busy = false; }
+  }
+  $('start-form').addEventListener('submit', async event => {
+    event.preventDefault(); if (busy) return; busy = true; $('start').disabled = true; clearError();
+    try { const next = await api('/api/start', {participant_id: $('participant').value.trim()}); storage.remove(DRAFT); busy = false; accept(next); }
+    catch (value) { error(value); }
+    finally { busy = false; $('start').disabled = false; }
+  });
+  $('resume').addEventListener('click', () => resume(storage.get(KEY)));
+  $('undo').addEventListener('click', () => { if (busy || pending || state.awaiting_continue) return; plan.pop(); source = null; saveDraft(); renderPlan(); });
+  $('reset').addEventListener('click', () => { if (busy || pending || state.awaiting_continue) return; plan = []; source = null; saveDraft(); renderPlan(); });
+  $('submit').addEventListener('click', async () => {
+    if (busy || state.awaiting_continue || (!pending && !plan.length)) return;
+    if (!pending) pending = {session_id: state.session_id, turn_token: state.turn_token, moves: [...plan]};
+    saveDraft(); busy = true; clearError(); renderPlan(); renderHistory();
+    try { const next = await api('/api/submit', pending); busy = false; accept(next); }
+    catch (value) { error(Error(`${value.message} 같은 제출을 다시 전송해 저장 여부를 확인할 수 있습니다.`)); }
+    finally { busy = false; renderPlan(); renderHistory(); }
+  });
+  $('continue').addEventListener('click', async () => {
+    if (busy) return; busy = true; clearError(); renderPlan();
+    try { const next = await api('/api/continue', {session_id: state.session_id, turn_token: state.turn_token}); busy = false; accept(next); }
+    catch (value) { error(value); }
+    finally { busy = false; renderPlan(); }
+  });
+  function download() {
+    if (!state || busy) return;
+    try {
+      offline.download({session_id: state.session_id, turn_token: state.turn_token, plan});
+    } catch (value) { error(value); }
+  }
+  $('export').addEventListener('click', download); $('export-complete').addEventListener('click', download);
+  $('import').addEventListener('change', async event => {
+    const file = event.target.files[0]; if (!file || busy) return;
+    busy = true; clearError();
+    try {
+      if (file.size > 10 * 1024 * 1024) throw Error('파일이 너무 큽니다.');
+      const data = JSON.parse(await file.text());
+      const next = offline.importDocument(data); busy = false; accept(next, true);
+    } catch (value) { error(value); }
+    finally { busy = false; }
+    event.target.value = '';
+  });
+  $('help-button').addEventListener('click', () => $('help').showModal());
+  $('close-help').addEventListener('click', () => $('help').close());
+  $('show-initial').addEventListener('click', () => { renderBoard($('initial-board'), boardFrom(state.initial_positions)); $('initial-dialog').showModal(); });
+  $('close-initial').addEventListener('click', () => $('initial-dialog').close());
+  renderBoard($('intro-board'), boardFrom(['B', 'A', 'C']));
+  $('resume').hidden = !storage.get(KEY);
+  api('/api/instructions').then(data => { instructions = data.instructions; renderInstructions(); }).catch(error);
+})();
+
+</script>
+</body></html>
